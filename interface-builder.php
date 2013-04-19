@@ -18,6 +18,6 @@ class InterfaceBuilder(){
     }
 
     function build(){
-        include_once($this->target . '.php');
+        include_once(plugin_dir_url(__FILE__)'/views/'$this->target . '.php'); //se llama al template correspondiente
     }
 }
