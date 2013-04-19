@@ -1,6 +1,12 @@
 <?php
-
-class InterfaceBuilder(){
+/*
+* Interface Builder 
+* 
+* Interface Manager for Moderate Categories
+*
+* @author Mateo Torres <torresmateo@gmail.com>
+*/
+class InterfaceBuilder{
     private $target;
 
     function __construct($buildMe){
@@ -8,16 +14,16 @@ class InterfaceBuilder(){
             'mainMenu',     //roles-categories
             'userMenu',     //users-categories
             'how-to-Page'   //how-to-do-stuff
-        )
+        );
 
-        if($buildMe,$validTags){
+        if(in_array($buildMe,$validTags)){
             $this->target = $buildMe;
         }else{
-            $this->target = 'error'     //bad tag? bad page
+            $this->target = 'error';    //bad tag? bad page
         }
     }
 
-    function build(){
-        include_once(plugin_dir_url(__FILE__)'/views/'$this->target . '.php'); //se llama al template correspondiente
+    public function build(){
+        include( 'views/'.$this->target . '.php'); //se llama al template correspondiente
     }
 }
