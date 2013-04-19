@@ -1,0 +1,14 @@
+/****************************************************
+ * Header Stuff
+****************************************************/
+
+#moderate-categories-icon{
+    height: 46px;
+    width: 110px;
+    float: left;
+    margin: 14px 6px 0px 0px;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-image: url(../img/top.logo.big.png);
+}
+

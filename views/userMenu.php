@@ -8,7 +8,8 @@ Mateo Torres 2013-->
 //include the header file
 include("template/header.php");?>
 
-
+User Menu
 
 <?php //include the footer file
 include("template/footer.php");?>
+
