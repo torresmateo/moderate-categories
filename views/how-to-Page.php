@@ -8,7 +8,9 @@ Mateo Torres 2013-->
 //include the header file
 include("template/header.php");?>
 
-
+User Manual
+<br/>
+SCREENSHOTS TO COME
 
 <?php //include the footer file
 include("template/footer.php");?>
