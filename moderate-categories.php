@@ -8,6 +8,21 @@ Author URI: https://github.com/torresmateo/moderate-categories
 License:GPL3
 */
 
+/*
+This program is free software; you can redistribute it and/or modify 
+it under the terms of the GNU General Public License as published by 
+the Free Software Foundation; version 2 of the License.
+
+This program is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details. 
+
+You should have received a copy of the GNU General Public License 
+along with this program; if not, write to the Free Software 
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA 
+*/
+
 class ModerateCategories{
 
     
@@ -17,6 +32,7 @@ class ModerateCategories{
 
     function __construct(){
         include_once('interface-builder.php');
+        include_once('configuration-access.php');
         register_activation_hook(__FILE__, array($this,'install'));
         register_deactivation_hook(__FILE__, array($this, 'uninstall'));
         //adds the css files for "pretty-ness"
@@ -27,16 +43,41 @@ class ModerateCategories{
     }
 
     function install(){
-        $fp = fopen("test.txt","w");
-        fwrite($fp,"on install function\n");
-        //TODO generates database structure
-        fclose($fp);
+        $this->createTables();
     }
 
     static function uninstall(){
         //TODO uninstall script
     }
 
+    function createTables(){
+        global $wpdb, $table_prefix;
+        //create roles table
+        $tableName = $table_prefix . "moderate_roles";
+        if($wpdb->get_var("show tables like '$table_name'") != $table_name){
+            $sql = "create table $table_name (
+                        id int not null autoincrement,
+                        role varchar(50),
+                        category int not null
+                    );";
+            $rs = $wpdb->query($sql);
+        }
+
+        //create users table
+        $tableName = $table_prefix . "moderate_users";
+        if($wpdb->get_var("show tables like '$table_name'") != $table_name){
+            $sql = "create table $table_name (
+                        id int not null autoincrement,
+                        user int not null,
+                        category int not null
+                    );";
+            $rs = $wpdb->query($sql);
+        }
+    }
+
+    function dropTables(){
+        //TODO drop tables on uninstall
+    }
     
     //============================================================================================================================
     //                             ADMINISTRATOR GUI
@@ -77,6 +118,47 @@ class ModerateCategories{
     }
 
 }
+
+/**
+ * Custom walker class to create a category checklist
+ * 
+ * Taken from "Restrict Cateogories Plug-in"
+ * http://wordpress.org/support/plugin/restrict-categories
+ * @since 1.5
+ */
+class RestrictCats_Walker_Category_Checklist extends Walker {
+    var $tree_type = 'category';
+    var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); //TODO: decouple this
+
+    function start_lvl(&$output, $depth, $args) {
+        $indent = str_repeat("\t", $depth);
+        $output .= "$indent<ul class='children'>\n";
+    }
+
+    function end_lvl(&$output, $depth, $args) {
+        $indent = str_repeat("\t", $depth);
+        $output .= "$indent</ul>\n";
+    }
+
+    function start_el(&$output, $category, $depth, $args) {
+        extract($args);
+        if ( empty($taxonomy) )
+            $taxonomy = 'category';
+
+        if ( $taxonomy == 'category' )
+            $name = 'post_category';
+        else
+            $name = 'tax_input['.$taxonomy.']';
+        
+        $output .= "\n<li id='{$taxonomy}-{$category->term_id}'>" . '<label class="selectit"><input value="' . $category->slug . '" type="checkbox" name="catSelection[]" ' . checked( in_array( $category->slug, $selected_cats ), true, false ) . ( $disabled === true ? 'disabled="disabled"' : '' ) . ' /> ' . esc_html( apply_filters('the_category', $category->name ) ) . '</label>';
+    }
+
+    function end_el(&$output, $category, $depth, $args) {
+        $output .= "</li>\n";
+    }
+}
+
+
 
 $moderateCategories = new ModerateCategories();
 ?>

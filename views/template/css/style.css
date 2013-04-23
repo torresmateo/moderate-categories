@@ -12,3 +12,27 @@
     background-image: url(../img/top.logo.big.png);
 }
 
+
+/****************************************************
+ * Rule List
+****************************************************/
+
+.moderateTable{
+    width:50%;
+    float:left;
+    min-width:300px;
+}
+
+/****************************************************
+ * Add Rule Form
+****************************************************/
+
+.moderateForm{
+    width: 50%;
+    float: right;
+    display:inline;
+}
+
+.moderateSubmitCol{
+    text-align:right;
+}
