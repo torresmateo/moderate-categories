@@ -77,7 +77,7 @@ include("template/header.php");?>
         <tbody>
             <tr>
                 <td>
-                    <select name="role">
+                    <select name="target">
                         <?php
                         $roles = get_editable_roles();
                         foreach($roles as $role => $roleDetails){
@@ -108,12 +108,12 @@ include("template/header.php");?>
 
 	                        $disable_checkbox = ( 'all' == $current_tab ) ? '' : 'disabled="disabled"';
 	                        ?>
-	                        <input style="display:none;" <?php echo $disable_checkbox; ?> type="checkbox" value="RestrictCategoriesDefault" checked="checked" name="<?php echo $options_name; ?>[<?php echo $id; ?>][]">
 	                    </ul>
 	                </div>
                 </td>
             </tr>
         </tbody>
+        <input type="hidden" name="runMe" value="newRuleForRole" />
 </form>
 
 <?php //include the footer file

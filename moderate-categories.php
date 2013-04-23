@@ -33,6 +33,7 @@ class ModerateCategories{
     function __construct(){
         include_once('interface-builder.php');
         include_once('configuration-access.php');
+        include_once('input-handler.php');
         register_activation_hook(__FILE__, array($this,'install'));
         register_deactivation_hook(__FILE__, array($this, 'uninstall'));
         //adds the css files for "pretty-ness"
@@ -40,6 +41,7 @@ class ModerateCategories{
         
         //adds the configuration menu to the dashboard
         add_action('admin_menu', array($this,'adminMenu'));
+        $this->evalInput();
     }
 
     function install(){
@@ -54,22 +56,24 @@ class ModerateCategories{
         global $wpdb, $table_prefix;
         //create roles table
         $tableName = $table_prefix . "moderate_roles";
-        if($wpdb->get_var("show tables like '$table_name'") != $table_name){
-            $sql = "create table $table_name (
-                        id int not null autoincrement,
-                        role varchar(50),
-                        category int not null
+        if($wpdb->get_var("show tables like '$tableName'") != $tableName){
+            $sql = "create table $tableName (
+                        id int NOT NULL AUTO_INCREMENT,
+                        role varchar(50) NOT NULL,
+                        category int NOT NULL,
+                        UNIQUE KEY id(id)
                     );";
             $rs = $wpdb->query($sql);
         }
 
         //create users table
         $tableName = $table_prefix . "moderate_users";
-        if($wpdb->get_var("show tables like '$table_name'") != $table_name){
-            $sql = "create table $table_name (
-                        id int not null autoincrement,
-                        user int not null,
-                        category int not null
+        if($wpdb->get_var("show tables like '$tableName'") != $tableName){
+            $sql = "create table $tableName (
+                        id int NOT NULL AUTO_INCREMENT,
+                        user int NOT NULL,
+                        category int NOT NULL,
+                        UNIQUE KEY id(id)
                     );";
             $rs = $wpdb->query($sql);
         }
@@ -79,6 +83,16 @@ class ModerateCategories{
         //TODO drop tables on uninstall
     }
     
+    //============================================================================================================================
+    //                             INPUT HANDLER
+    //============================================================================================================================
+    
+    function evalInput(){
+        if(isset($_POST['runMe'])){
+            $inputHandler = new InputHandler($_POST['runMe'],$_POST['target'],$_POST['rule']);
+        }
+    }
+
     //============================================================================================================================
     //                             ADMINISTRATOR GUI
     //============================================================================================================================
@@ -150,7 +164,11 @@ class RestrictCats_Walker_Category_Checklist extends Walker {
         else
             $name = 'tax_input['.$taxonomy.']';
         
-        $output .= "\n<li id='{$taxonomy}-{$category->term_id}'>" . '<label class="selectit"><input value="' . $category->slug . '" type="checkbox" name="catSelection[]" ' . checked( in_array( $category->slug, $selected_cats ), true, false ) . ( $disabled === true ? 'disabled="disabled"' : '' ) . ' /> ' . esc_html( apply_filters('the_category', $category->name ) ) . '</label>';
+        $output .= "\n<li id='{$taxonomy}-{$category->term_id}'>" . '<label class="selectit"><input value="' . 
+	        $category->slug . '" type="checkbox" name="rule[]" ' . 
+	        checked( in_array( $category->slug, $selected_cats ), true, false ) . 
+	        ( $disabled === true ? 'disabled="disabled"' : '' ) . ' /> ' . 
+	        esc_html( apply_filters('the_category', $category->name ) ) . '</label>';
     }
 
     function end_el(&$output, $category, $depth, $args) {
