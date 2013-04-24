@@ -48,8 +48,8 @@ class ModerateCategories{
         $this->createTables();
     }
 
-    static function uninstall(){
-        //TODO uninstall script
+    function uninstall(){
+        $this->dropTables();
     }
 
     function createTables(){
@@ -80,7 +80,17 @@ class ModerateCategories{
     }
 
     function dropTables(){
-        //TODO drop tables on uninstall
+        global $wpdb, $table_prefix;
+	
+		//drop role table
+		$table_name = $table_prefix.'moderate_roles';
+		$sql = "DROP TABLE ". $table_name . ";";
+		$wpdb->query($sql);
+
+		//drop user table
+		$table_name = $table_prefix.'moderate_users';
+		$sql = "DROP TABLE ". $table_name . ";";
+		$wpdb->query($sql);
     }
     
     //============================================================================================================================
