@@ -38,7 +38,8 @@ class ModerateCategories{
         register_deactivation_hook(__FILE__, array($this, 'uninstall'));
         //adds the css files for "pretty-ness"
         add_action('admin_head', array($this,'adminCSS'));
-        
+        //adds the js files for "awsum-ness"
+        add_action('admin_head', array($this,'adminJS'));
         //adds the configuration menu to the dashboard
         add_action('admin_menu', array($this,'adminMenu'));
         $this->evalInput();
@@ -98,7 +99,7 @@ class ModerateCategories{
     //============================================================================================================================
     
     function evalInput(){
-        if(isset($_POST['runMe'])){
+        if(isset($_POST['runMe']) && isset($_POST['tax_input']) && isset($_POST['rule'])){
             $inputHandler = new InputHandler($_POST['runMe'],$_POST['target'],$_POST['rule']);
         }
     }
@@ -111,6 +112,11 @@ class ModerateCategories{
     public function adminCSS(){
         echo '<link rel="stylesheet" type="text/css" media="screen" href="'.plugin_dir_url(__FILE__).'/views/template/css/style.css" />';
     }
+
+    //outputs the JavaScript link
+    public function adminJS(){
+		echo '<script type="text/javascript"> if (window.jQuery == undefined) document.write( unescape(\'%3Cscript src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"%3E%3C/script%3E\') );</script>';
+	}
 
     //Adds the "Moderate Categories" menu to the admin dashboard
     public function adminMenu(){

@@ -71,13 +71,14 @@ include("template/header.php");?>
         </thead>
         <tfoot>
             <tr>
-                <th class="manage-column moderateSubmitCol"><input type="submit" value="Add/Edit"/></th>
+                <th class="manage-column moderateSubmitCol"><input id="moderateSubmit" type="submit" value="Add/Edit"/></th>
             </tr>
         </tfoot>
         <tbody>
             <tr>
                 <td>
-                    <select name="target">
+                    <select id="moderateTarget" name="target">
+                    	<option value="moderate-NO-ROLE">Select a Role...</option>
                         <?php
                         $roles = get_editable_roles();
                         foreach($roles as $role => $roleDetails){

@@ -46,9 +46,19 @@ class InputHandler{
 	}
 
 	function newRuleForRole($role, $categoryArray){
-		//TODO add row on role category table
+		global $wpdb, $table_prefix;
+		
+		$sql = 'insert into '.$table_prefix.'moderate_roles (role, category) values ';
+		$lastKey = array_search(end($categoryArray), $categoryArray);
+		foreach ($categoryArray as $key => $category) {
+			$id= get_category_by_slug($category)->cat_ID;
+			$sql .= '("'.$role.'",'.$id.')';
+			if($key != $lastKey)
+				$sql .= ',';			
+		}
+		echo "$sql";
 		var_dump($role);
-		var_dump($categoryArray);
+//		var_dump($categoryArray);
 	}
 
 	function editRuleForRole($role, $categoryArray){
