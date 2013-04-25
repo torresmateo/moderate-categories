@@ -77,10 +77,10 @@ $userRules = $configAccess->getUsersConfiguration();
 					}
 				else
 					echo "<tr><td/><td><h1>No rules</h1></td><td/></tr>";
-            ?>
+			?>
 
-        </tbody>
-    </table>
+		</tbody>
+	</table>
 </form>
 
 <form action="<?php echo $PHP_SELF; ?>" id="targetForm" class="moderateForm" method="post" enctype="multipart/form-data" name="add_new_role_rule">
@@ -96,46 +96,46 @@ $userRules = $configAccess->getUsersConfiguration();
             </tr>
         </tfoot>
         <tbody>
-            <tr>
-                <td>
-                	<select id="moderateTarget" name="target">
-                    	<option id="targetValue" value="moderate-NO-TARGET">Select User</option>
-                        <?php
-                        //get all users but admin
-                        $users = get_users(array('exclude' => array(1)));
-                        foreach($users as $user => $userDetails){
-                            echo '<option value="'.$userDetails->ID.'">'.$userDetails->user_nicename.'</option>';
-                        }
-                        ?>
-                    </select>
-                    <div class="taxonomydiv">
-	                    <ul class="categorychecklist form-no-clear">
-	                        <?php
-	                        $walker = new RestrictCats_Walker_Category_Checklist();
-	                        if ( isset( $settings[ $id ] ) && is_array( $settings[ $id ] ) )
+			<tr>
+				<td>
+					<select id="moderateTarget" name="target">
+						<option id="targetValue" value="moderate-NO-TARGET">Select User</option>
+						<?php
+						//get all users but admin
+						$users = get_users(array('exclude' => array(1)));
+						foreach($users as $user => $userDetails){
+							echo '<option value="'.$userDetails->ID.'">'.$userDetails->user_nicename.'</option>';
+						}
+					    ?>
+					</select>
+					<div class="taxonomydiv">
+						<ul class="categorychecklist form-no-clear">
+							<?php
+							$walker = new RestrictCats_Walker_Category_Checklist();
+							if ( isset( $settings[ $id ] ) && is_array( $settings[ $id ] ) )
 								$selected = $settings[ $id ];
 							else
 								$selected = array();
-	                        wp_list_categories(
-	                            array(
-	                                'admin'          => $id,
-	                                'selected_cats'  => $selected,
-	                                'options_name'   => $options_name,
-	                                'hide_empty'     => 0,
-	                                'title_li'       => '',
-	                                'disabled'       => false,
-	                                'walker'         => $walker
-	                            )
-	                        );
+							wp_list_categories(
+								array(
+									'admin'          => $id,
+									'selected_cats'  => $selected,
+									'options_name'   => $options_name,
+									'hide_empty'     => 0,
+									'title_li'       => '',
+									'disabled'       => false,
+									'walker'         => $walker
+								)
+							);
 
-	                        $disable_checkbox = ( 'all' == $current_tab ) ? '' : 'disabled="disabled"';
-	                        ?>
-	                    </ul>
-	                </div>
-                </td>
-            </tr>
-        </tbody>
-        <input type="hidden" name="runMe" value="editRuleForUser" />
+							$disable_checkbox = ( 'all' == $current_tab ) ? '' : 'disabled="disabled"';
+							?>
+						</ul>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+		<input type="hidden" name="runMe" value="editRuleForUser" />
 </form>
 
 <?php //include the footer file

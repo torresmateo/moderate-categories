@@ -31,18 +31,23 @@ class ModerateCategories{
     //============================================================================================================================
 
     function __construct(){
-        include_once('interface-builder.php');
-        include_once('configuration-access.php');
-        include_once('input-handler.php');
-        register_activation_hook(__FILE__, array($this,'install'));
-        register_deactivation_hook(__FILE__, array($this, 'uninstall'));
-        //adds the css files for "pretty-ness"
-        add_action('admin_head', array($this,'adminCSS'));
-        //adds the js files for "awsum-ness"
-        add_action('admin_head', array($this,'adminJS'));
-        //adds the configuration menu to the dashboard
-        add_action('admin_menu', array($this,'adminMenu'));
-        $this->evalInput();
+		include_once('interface-builder.php');
+		include_once('configuration-access.php');
+		include_once('input-handler.php');
+		register_activation_hook(__FILE__, array($this,'install'));
+		register_deactivation_hook(__FILE__, array($this, 'uninstall'));
+		//adds the css files for "pretty-ness"
+		add_action('admin_head', array($this,'adminCSS'));
+		//adds the js files for "awsum-ness"
+		add_action('admin_head', array($this,'adminJS'));
+		//adds the configuration menu to the dashboard
+		add_action('admin_menu', array($this,'adminMenu'));
+		//adds the edition screen restrictions
+		add_action('pre_get_posts', array($this,'restrictEditScreen'));
+		//adds the edition screen restrictions
+		add_action('load-post.php', array($this,'restrictPostEdition'));
+		
+		$this->evalInput();
     }
 
     function install(){
@@ -95,9 +100,42 @@ class ModerateCategories{
     }
     
     //============================================================================================================================
-    //                             CONFIGURATION HOOKS
+    //                             RESTRICTION HOOKS
     //============================================================================================================================
 	
+    function restrictEditScreen( $wpQuery ){
+		if ( strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-admin/edit.php' ) !== false ) {
+    		$configurationAccess = new ConfigurationAccess();
+			global $current_user;
+			
+			$configuration = $configurationAccess->getCategoriesForUser($current_user->id);
+			if(!empty($configuration)){
+				$wpQuery->set('cat',implode(",",$configuration));
+			}
+		}
+	}
+
+	function restrictPostEdition(){
+		global $current_user;
+		$configurationAccess = new ConfigurationAccess();
+			
+		$configuration = $configurationAccess->getCategoriesForUser($current_user->id);
+		if(!empty($configuration)){
+			$post = get_post($_GET['post']);
+			$categories = wp_get_post_categories($post->ID);
+			//give access if post is on at least one of the categories
+			$allowed = false;
+			foreach ($categories as $cat) 
+				if(in_array($cat, $configuration)){
+					$allowed = true;
+					break;
+				}
+			if($allowed)
+				return;
+			wp_die(__('You are not allowed to access this part of the site'));
+		}
+	}
+
 	//============================================================================================================================
 	//                             INPUT HANDLER
 	//============================================================================================================================

@@ -98,8 +98,9 @@ class InputHandler{
 
 		//get the new rule array (id)
 		$newRule = array();
-		foreach ($categoryArray as $key => $category)
-			$newRule[] = get_category_by_slug($category)->cat_ID;
+		if(!empty($categoryArray))
+			foreach ($categoryArray as $key => $category)
+				$newRule[] = get_category_by_slug($category)->cat_ID;
 		
 		//delete categories that are excluded from new rule
 		$deleteCats = array_diff($currentRule, $newRule);
