@@ -44,8 +44,9 @@ class ConfigurationAccess{
 		$userRules = $wpdb->get_results($sql);
 		$formattedRules = array();
 		foreach ($userRules as $key => $rule) {
-			$formattedRules[get_userdata($rule->user)][] = $rule->category;
+			$formattedRules[$rule->user][] = $rule->category;
 		}
+		return $formattedRules;
 	}
 }
 ?>

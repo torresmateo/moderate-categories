@@ -68,7 +68,7 @@ $roleRules = $configAccess->getRolesConfiguration();
 							<form action='".$PHP_SELF."' method='post' enctype='multipart/form-data' name='update_roles_rules'>
 								<input type='hidden' name='target' value='".$role."' />
 								<input type='hidden' name='runMe' value='resetRole' />
-								<input type='submit' value='Reset'/>
+								<input type='submit' value='Delete'/>
 							</form>
 						</td>
 
@@ -102,7 +102,7 @@ $roleRules = $configAccess->getRolesConfiguration();
                         <?php
                         $roles = get_editable_roles();
                         foreach($roles as $role => $roleDetails){
-                            echo '<option value="'.$role.'">'.$roleDetails['name'].'</option>"';
+                            echo '<option value="'.$role.'">'.$roleDetails['name'].'</option>';
                         }
                         ?>
                     </select>

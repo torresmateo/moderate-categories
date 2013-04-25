@@ -141,7 +141,7 @@ class InputHandler{
 	}
 
 	function editRuleForUser($user, $categoryArray){
-		$this->editRule('moderate_users',$role,$categoryArray,'user');
+		$this->editRule('moderate_users',$user,$categoryArray,'user');
 	}
 
 	function resetRole($role){
