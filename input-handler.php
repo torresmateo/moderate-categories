@@ -27,6 +27,12 @@ class InputHandler{
 
 	function handleInput($target, $rule){
 		switch ($this->runMe) {
+			case 'resetRole':
+				$this->resetRole($target);
+				break;
+			case 'resetUser':
+				$this->resetUser($target);
+				break;
 			case 'newRuleForRole':
 				$this->newRuleForRole($target, $rule);
 				break;
@@ -73,7 +79,6 @@ class InputHandler{
 				$sql .= '("'.$target.'",'.$id.')';
 			}	
 		}
-		echo $sql;
 		//insert rules 
 		if($haveRules)
 			$wpdb->query($sql);
@@ -137,6 +142,19 @@ class InputHandler{
 
 	function editRuleForUser($user, $categoryArray){
 		$this->editRule('moderate_users',$role,$categoryArray,'user');
+	}
+
+	function resetRole($role){
+		global $wpdb, $table_prefix;
+		$sql = 'delete from '.$table_prefix.'moderate_roles where role = "'.$role.'"';
+		echo "$sql";
+		$wpdb->query($sql);
+	}
+
+	function resetUser($user){
+		global $wpdb, $table_prefix;
+		$sql = 'delete from '.$table_prefix.'moderate_users where user = "'.$user.'"';
+		$wpdb->query($sql);
 	}
 
 }

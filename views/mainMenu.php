@@ -26,24 +26,22 @@ include("template/header.php");
 
 $configAccess = new ConfigurationAccess();
 $roleRules = $configAccess->getRolesConfiguration();
-var_dump($roleRules);
 ?>
 
-<form action="<?php echo $PHP_SELF;?>" method="post" enctype="multipart/form-data" name="update_roles_rules">
     <h2>Category rules for Roles</h2>
     <table class="widefat post moderateTable" cellspacing="0">
         <thead>
             <tr>
                 <th scope="col" class="manage-column">Role</th>
                 <th scope="col" class="manage-column">Categories</th>
-                <th scope="col" class="manage-column">Add</th>
+                <th scope="col" class="manage-column">Reset</th>
             </tr>
         </thead>
         <tfoot>
             <tr>
                 <th class="manage-column">Role</td>
                 <th class="manage-column">Categories</td>
-                <th class="manage-column">Add</td>
+                <th class="manage-column">Reset</td>
             </tr>
         </tfoot>
         <tbody>
@@ -51,15 +49,33 @@ var_dump($roleRules);
             	if(!empty($roleRules))
 					foreach ($roleRules as $role => $categories) {
 						echo "<tr><td>$role</td><td><ul>";
-						foreach ($categories as $category) {
+						$list = '';
+						$jsArray = '<script> var '.$role.' = [';
+						reset($categories);
+						$firstKey = key($categories);
+						foreach ($categories as $key => $category) {
+							$name = get_category($category)->name;
 							$slug = get_category($category)->slug;
-							echo "<li>$slug</li>";
+							$list .= "<li>$name</li>";
+							if($key != $firstKey)
+								$jsArray .= ',';
+							$jsArray .= "'".$slug."'";
 						}
+						$jsArray .= '];</script>';
+						echo $list;
+						echo "</ul></td>
+						<td>".$jsArray."
+							<form action='".$PHP_SELF."' method='post' enctype='multipart/form-data' name='update_roles_rules'>
+								<input type='hidden' name='target' value='".$role."' />
+								<input type='hidden' name='runMe' value='resetRole' />
+								<input type='submit' value='Reset'/>
+							</form>
+						</td>
 
-						echo "</ul></td></tr>";
+						</tr>";
 					}
 				else
-					echo "<tr><td>No rules</td></tr>";
+					echo "<tr><td/><td><h1>No rules</h1></td><td/></tr>";
             ?>
 
         </tbody>

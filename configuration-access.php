@@ -41,7 +41,11 @@ class ConfigurationAccess{
 	public function getUsersConfiguration(){
 		global $wpdb, $table_prefix;
 		$sql = 'select * from '.$table_prefix.'moderate_users';
-		return $wpdb->get_results($sql);
+		$userRules = $wpdb->get_results($sql);
+		$formattedRules = array();
+		foreach ($userRules as $key => $rule) {
+			$formattedRules[get_userdata($rule->user)][] = $rule->category;
+		}
 	}
 }
 ?>

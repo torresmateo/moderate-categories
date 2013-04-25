@@ -95,11 +95,15 @@ class ModerateCategories{
     }
     
     //============================================================================================================================
-    //                             INPUT HANDLER
+    //                             CONFIGURATION HOOKS
     //============================================================================================================================
+	
+	//============================================================================================================================
+	//                             INPUT HANDLER
+	//============================================================================================================================
     
     function evalInput(){
-        if(isset($_POST['runMe']) && isset($_POST['target']) && isset($_POST['rule'])){
+        if(isset($_POST['runMe']) && isset($_POST['target'])){
             $inputHandler = new InputHandler($_POST['runMe'],$_POST['target'],$_POST['rule']);
         }
     }
@@ -115,7 +119,9 @@ class ModerateCategories{
 
     //outputs the JavaScript link
     public function adminJS(){
+    	//load jQuery
 		echo '<script type="text/javascript"> if (window.jQuery == undefined) document.write( unescape(\'%3Cscript src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"%3E%3C/script%3E\') );</script>';
+		//load the plugin script
 		echo '<script type="text/javascript" src="'.plugin_dir_url(__FILE__).'/views/template/js/moderate-categories.js"></script>';
 	}
 
