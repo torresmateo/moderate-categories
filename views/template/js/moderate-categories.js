@@ -1,8 +1,14 @@
-jQuery(document).ready(function() {
+jQuery(document).ready(function($) {
 
-	$("#moderateSubmit").click(function(){
-		var target = $("moderateTarget").value();
-		alert(target);
+	//check for a valid role
+	$("#targetForm").submit(function(e){
+		var target = $("#moderateTarget").val();
+		if(target != "moderate-NO-TARGET")
+			return true;
+		alert("You must " + $("#targetValue").html());
+		return false;
 	});
+
+	//TODO load rule on target selection
 
 });

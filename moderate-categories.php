@@ -99,7 +99,7 @@ class ModerateCategories{
     //============================================================================================================================
     
     function evalInput(){
-        if(isset($_POST['runMe']) && isset($_POST['tax_input']) && isset($_POST['rule'])){
+        if(isset($_POST['runMe']) && isset($_POST['target']) && isset($_POST['rule'])){
             $inputHandler = new InputHandler($_POST['runMe'],$_POST['target'],$_POST['rule']);
         }
     }
@@ -116,6 +116,7 @@ class ModerateCategories{
     //outputs the JavaScript link
     public function adminJS(){
 		echo '<script type="text/javascript"> if (window.jQuery == undefined) document.write( unescape(\'%3Cscript src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"%3E%3C/script%3E\') );</script>';
+		echo '<script type="text/javascript" src="'.plugin_dir_url(__FILE__).'/views/template/js/moderate-categories.js"></script>';
 	}
 
     //Adds the "Moderate Categories" menu to the admin dashboard

@@ -22,7 +22,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 //include the header file
-include("template/header.php");?>
+include("template/header.php");
+
+$configAccess = new ConfigurationAccess();
+$roleRules = $configAccess->getRolesConfiguration();
+var_dump($roleRules);
+?>
 
 <form action="<?php echo $PHP_SELF;?>" method="post" enctype="multipart/form-data" name="update_roles_rules">
     <h2>Category rules for Roles</h2>
@@ -42,27 +47,26 @@ include("template/header.php");?>
             </tr>
         </tfoot>
         <tbody>
-            <tr>
-                <td>asdf</td>
-                <td>
-                    <ul>
-                        <li>asdf</li>
-                        <li>asdf</li>
-                        <li>asdf</li>
-                        <li>asdf</li>
-                        <li>asdf</li>
-                        <li>asdf</li>
-                    </ul>
-                </td>
-                <td>
-                    EDITAR
-                </td>
-            </tr>
+            <?php 
+            	if(!empty($roleRules))
+					foreach ($roleRules as $role => $categories) {
+						echo "<tr><td>$role</td><td><ul>";
+						foreach ($categories as $category) {
+							$slug = get_category($category)->slug;
+							echo "<li>$slug</li>";
+						}
+
+						echo "</ul></td></tr>";
+					}
+				else
+					echo "<tr><td>No rules</td></tr>";
+            ?>
+
         </tbody>
     </table>
 </form>
 
-<form action="<?php echo $PHP_SELF; ?>" class="moderateForm" method="post" enctype="multipart/form-data" name="add_new_role_rule">
+<form action="<?php echo $PHP_SELF; ?>" id="targetForm" class="moderateForm" method="post" enctype="multipart/form-data" name="add_new_role_rule">
     <table class="widefat post">
         <thead>
             <tr>
@@ -78,7 +82,7 @@ include("template/header.php");?>
             <tr>
                 <td>
                     <select id="moderateTarget" name="target">
-                    	<option value="moderate-NO-ROLE">Select a Role...</option>
+                    	<option id="targetValue" value="moderate-NO-TARGET">Select a Role...</option>
                         <?php
                         $roles = get_editable_roles();
                         foreach($roles as $role => $roleDetails){
@@ -89,7 +93,6 @@ include("template/header.php");?>
                     <div class="taxonomydiv">
 	                    <ul class="categorychecklist form-no-clear">
 	                        <?php
-	                        $configAccess = new ConfigurationAccess();
 	                        $walker = new RestrictCats_Walker_Category_Checklist();
 	                        if ( isset( $settings[ $id ] ) && is_array( $settings[ $id ] ) )
 								$selected = $settings[ $id ];
@@ -114,7 +117,8 @@ include("template/header.php");?>
                 </td>
             </tr>
         </tbody>
-        <input type="hidden" name="runMe" value="newRuleForRole" />
+        <!--input type="hidden" name="runMe" value="newRuleForRole" /-->
+        <input type="hidden" name="runMe" value="editRuleForRole" />
 </form>
 
 <?php //include the footer file

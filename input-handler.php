@@ -45,34 +45,98 @@ class InputHandler{
 		}
 	}
 
-	function newRuleForRole($role, $categoryArray){
+	function insertNewRule($table,$target,$categoryArray,$type){
 		global $wpdb, $table_prefix;
+		//in case all rules are duplicates.
+		$haveRules = false;
 		
-		$sql = 'insert into '.$table_prefix.'moderate_roles (role, category) values ';
-		$lastKey = array_search(end($categoryArray), $categoryArray);
+		//begin sql statement
+		$sql = 'insert into '.$table_prefix.$table.' ('.$type.', category) values ';
+		
 		foreach ($categoryArray as $key => $category) {
+
+			//get the category id
 			$id= get_category_by_slug($category)->cat_ID;
-			$sql .= '("'.$role.'",'.$id.')';
-			if($key != $lastKey)
-				$sql .= ',';			
+
+			//check for possible duplicate rules (shouldn't be necessary)
+			$sqlCheckDuplicate = 'select * from '.$table_prefix.$table.' where '.$type.' = "'.$target.'" and category = '.$id.';';
+			$duplicateCheck = $wpdb->get_results($sqlCheckDuplicate);
+			//if the current rule is new is included in the query
+			if(empty($duplicateCheck)){
+				
+				//if this isn't the firt rule, a comma must be added. 
+				if($haveRules)
+					$sql .= ',';		
+				//we have at least one new rule
+				$haveRules = true;
+				//add rule
+				$sql .= '("'.$target.'",'.$id.')';
+			}	
 		}
-		echo "$sql";
-		var_dump($role);
-//		var_dump($categoryArray);
+		echo $sql;
+		//insert rules 
+		if($haveRules)
+			$wpdb->query($sql);
+	}
+
+	function editRule($table,$target,$categoryArray,$type){
+		global $wpdb, $table_prefix;
+
+		//get the current rule for target
+		$sqlCurrentRule = 'select * from '.$table_prefix.$table.' where '.$type.' = "'.$target.'"';
+		$currentRuleOBJ = $wpdb->get_results($sqlCurrentRule);
+		
+		$currentRule = array();
+		foreach ($currentRuleOBJ as $ruleOBJ) {
+			$currentRule[] = $ruleOBJ->category;
+		}
+
+		//get the new rule array (id)
+		$newRule = array();
+		foreach ($categoryArray as $key => $category)
+			$newRule[] = get_category_by_slug($category)->cat_ID;
+		
+		//delete categories that are excluded from new rule
+		$deleteCats = array_diff($currentRule, $newRule);
+		if(!empty($deleteCats)){
+			$sqlDelete = 'delete from '.$table_prefix.$table.' where '.$type.' = "'.$target.'" and category in (';
+			
+			reset($deleteCats);
+			$firstKey = key($deleteCats);
+			foreach ($deleteCats as $key => $oldCat){
+				if($key != $firstKey)
+					$sqlDelete .= ',';
+				$sqlDelete .= $oldCat;
+			}
+			$sqlDelete .= ")"; 
+			$wpdb->query($sqlDelete);
+		}
+		$insertCats = array_diff($newRule, $currentRule);
+		
+		if(!empty($insertCats)){
+			$insertCatsSlugs = array();
+			foreach ($insertCats as $catID) {
+				$insertCatsSlugs[] = get_category($catID)->slug;
+			}
+			$this->insertNewRule($table,$target,$insertCatsSlugs,$type);
+		}
+	}
+
+
+	function newRuleForRole($role, $categoryArray){
+		$this->insertNewRule('moderate_roles',$role,$categoryArray,'role');
 	}
 
 	function editRuleForRole($role, $categoryArray){
-		//TODO update row on role category table
+		$this->editRule('moderate_roles',$role,$categoryArray,'role');
 	}
 
 	function newRuleForUser($user, $categoryArray){
-		//TODO add row on user category table
-		var_dump($user);
-		var_dump($categoryArray);
+		$this->insertNewRule('moderate_users',$role,$categoryArray,'user');
 	}
 
 	function editRuleForUser($user, $categoryArray){
-		//TODO update row on user category table
+		$this->editRule('moderate_users',$role,$categoryArray,'user');
 	}
 
 }

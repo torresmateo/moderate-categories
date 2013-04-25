@@ -23,8 +23,14 @@ class ConfigurationAccess{
 	 * @author Mateo Torres <torresmateo@arsisteam.com>
 	 */
 	public function getRolesConfiguration(){
-		//TODO retrieve rules from role-category table
-		return array();
+		global $wpdb, $table_prefix;
+		$sql = 'select * from '.$table_prefix.'moderate_roles';
+		$roleRules = $wpdb->get_results($sql);
+		$formattedRules = array();
+		foreach ($roleRules as $key => $rule) {
+			$formattedRules[$rule->role][] = $rule->category;
+		}
+		return $formattedRules;
 	}
 
 	/**
@@ -33,8 +39,9 @@ class ConfigurationAccess{
 	 * @author Mateo Torres <torresmateo@arsisteam.com>
 	 */
 	public function getUsersConfiguration(){
-		//TODO retrieve rules from user-category table
-		return array();
+		global $wpdb, $table_prefix;
+		$sql = 'select * from '.$table_prefix.'moderate_users';
+		return $wpdb->get_results($sql);
 	}
 }
 ?>
