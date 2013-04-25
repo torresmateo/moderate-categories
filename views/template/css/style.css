@@ -29,8 +29,9 @@
 
 .moderateForm{
     width: 50%;
-    float: right;
+    float: left;
     display:inline;
+    min-width: 300px;
 }
 
 .moderateSubmitCol{
