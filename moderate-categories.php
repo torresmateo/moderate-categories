@@ -25,36 +25,53 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class ModerateCategories{
 
-    
+    //for use in filtering to avid infinite recursive loops
+	private $allCatsArray;
+
     //============================================================================================================================
     //                          INSTALL/UNINSTALL
     //============================================================================================================================
 
     function __construct(){
+    	$this->allCatsArray = get_all_category_ids();
+    	//interface handler
 		include_once('interface-builder.php');
+		//database access for configuration retrieval
 		include_once('configuration-access.php');
+		//input handler, and database acces for insertions, deletions and modifications
 		include_once('input-handler.php');
+		//activation and deactivation hooks
 		register_activation_hook(__FILE__, array($this,'install'));
 		register_deactivation_hook(__FILE__, array($this, 'uninstall'));
+		
+		//interface actions
+
 		//adds the css files for "pretty-ness"
 		add_action('admin_head', array($this,'adminCSS'));
 		//adds the js files for "awsum-ness"
 		add_action('admin_head', array($this,'adminJS'));
 		//adds the configuration menu to the dashboard
 		add_action('admin_menu', array($this,'adminMenu'));
+		
+		//restriction actions
+
 		//adds the edition screen restrictions
 		add_action('pre_get_posts', array($this,'restrictEditScreen'));
 		//adds the edition screen restrictions
 		add_action('load-post.php', array($this,'restrictPostEdition'));
+		//adds the category filter for widgets, metaboxes and other admin places
+		add_action('list_terms_exclusions', array($this,'filterCategories'));
 		
 		$this->evalInput();
     }
 
     function install(){
+    	//create database
         $this->createTables();
     }
 
     function uninstall(){
+    	//erase database
         $this->dropTables();
     }
 
@@ -104,10 +121,9 @@ class ModerateCategories{
     //============================================================================================================================
 	
     function restrictEditScreen( $wpQuery ){
-		if ( strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-admin/edit.php' ) !== false ) {
+    	global $current_user,$pagenow;
+		if ( $pagenow == 'edit.php' ){
     		$configurationAccess = new ConfigurationAccess();
-			global $current_user;
-			
 			$configuration = $configurationAccess->getCategoriesForUser($current_user->id);
 			if(!empty($configuration)){
 				$wpQuery->set('cat',implode(",",$configuration));
@@ -116,10 +132,11 @@ class ModerateCategories{
 	}
 
 	function restrictPostEdition(){
-		global $current_user;
+		global $current_user, $pagenow;
+		
 		$configurationAccess = new ConfigurationAccess();
-			
 		$configuration = $configurationAccess->getCategoriesForUser($current_user->id);
+		
 		if(!empty($configuration)){
 			$post = get_post($_GET['post']);
 			$categories = wp_get_post_categories($post->ID);
@@ -136,11 +153,36 @@ class ModerateCategories{
 		}
 	}
 
+	function filterCategories( $exclusions ){
+		global $current_user, $pagenow;
+		$configurationAccess = new ConfigurationAccess();
+		$configuration = $configurationAccess->getCategoriesForUser($current_user->id);
+		if ( in_array($pagenow, array('edit.php','post.php', 'post-new.php'))){
+			$inclusion;
+			foreach ($configuration as $key => $category) {
+				$categoryParents = explode(',',get_category_parents($category, false, ',', true));
+				foreach ($categoryParents as $key => $slug)
+					if($slug != '')
+						$inclusion .= get_category_by_slug($slug)->cat_ID.",";
+			}
+			//clean all trailing commas and duplicates
+			$inclusionArray = array_filter(array_unique(explode(',', $inclusion)));
+			$exclusionArray = array_diff($this->allCatsArray, $inclusionArray);
+			$exclusion = implode(',', $exclusionArray);
+			$inclusion = implode(',', $inclusionArray);
+			var_dump($exclusion);
+			if($inclusion != "")
+				$exclusions .= "AND t.term_id NOT IN ($exclusion)";
+		}
+		return $exclusions;
+	}
+
 	//============================================================================================================================
 	//                             INPUT HANDLER
 	//============================================================================================================================
     
     function evalInput(){
+    	//if we have something to do, create and InputHandler Instance and do stuff
         if(isset($_POST['runMe']) && isset($_POST['target'])){
             $inputHandler = new InputHandler($_POST['runMe'],$_POST['target'],$_POST['rule']);
         }
@@ -174,22 +216,26 @@ class ModerateCategories{
     }
 
     //prints the AWSUM config screen (role-categories screen)
-    public function mainMenu(){
-        if (!current_user_can('manage_options'))  {
-            wp_die( __('You do not have sufficient permissions to access this page.') );
-        }
-        $target = 'error';//default value is error page
-        if(isset($_GET['tab'])){
-            switch($_GET['tab']){
-                case '1': $target = 'userMenu'; break;
-                case '2': $target = 'how-to-Page'; break;
-                default: $target = 'error'; //because redundancy is never really redundant!
-            }
-        }else{//if not set, must be mainMenu
-            $target = 'mainMenu';
-        }
-        $configMenu = new InterfaceBuilder($target);
-        $configMenu->build();
+	public function mainMenu(){
+		if (!current_user_can('manage_options'))  {
+		    wp_die( __('You do not have sufficient permissions to access this page.') );
+		}
+		$target = 'error';//default value is error page
+
+		//if we are inside one of our tabs
+		if(isset($_GET['tab'])){
+			switch($_GET['tab']){
+				case '1': $target = 'userMenu'; break;
+				case '2': $target = 'how-to-Page'; break;
+				default: $target = 'error'; //because redundancy is never really redundant enough!
+			}
+		}else{//if not set, must be mainMenu
+			$target = 'mainMenu';
+		}
+		$configMenu = new InterfaceBuilder($target);
+
+		//paint it!
+		$configMenu->build();
     }
 
 }
