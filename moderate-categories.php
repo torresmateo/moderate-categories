@@ -170,7 +170,6 @@ class ModerateCategories{
 			$exclusionArray = array_diff($this->allCatsArray, $inclusionArray);
 			$exclusion = implode(',', $exclusionArray);
 			$inclusion = implode(',', $inclusionArray);
-			var_dump($exclusion);
 			if($inclusion != "")
 				$exclusions .= "AND t.term_id NOT IN ($exclusion)";
 		}
