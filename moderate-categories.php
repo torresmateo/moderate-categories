@@ -189,43 +189,28 @@ class ModerateCategories{
 
 	function disableCategoryUpdate($data, $postarr){
 		global $current_user,$pagenow;
-
-		/*echo "post ================ \n";
-		var_dump($_POST);
-		echo "postarr ================ \n";
-		var_dump($postarr);
-*/
 		$configurationAccess = new ConfigurationAccess();
 		$configuration = $configurationAccess->getCategoriesForUser($current_user->id);
 		//if user have at least one restriction we must verify
-		if($postarr['post_type'] == 'post')
-			if(!empty($configuration)){
-				//get the (soon to be) old set of categories
-				$currentCategories = wp_get_post_categories($postarr['ID']);
-				//get the new set of categories
-				$newCategories = $postarr['post_category'];
+		
+		if(!empty($configuration) && $postarr['post_type'] == 'post'){
+			//get the (soon to be) old set of categories
+			$currentCategories = wp_get_post_categories($postarr['ID']);
+			//get the new set of categories
+			$newCategories = $postarr['post_category'];
 
-				//categories that we can't see must remain
-				$mustRemain = array_diff($currentCategories, $configuration);
-				//add the new set of categories
-				$finalSet = array_unique(array_merge($mustRemain,$newCategories));
-				$this->finalSet = $finalSet;
-			/*	echo "currentCategories";
-				var_dump($currentCategories);
-				echo "newCategories";
-				var_dump($newCategories);
-				echo "mustRemain";
-				var_dump($mustRemain);
-*/
-				add_action('save_post',array($this,'setCategories'));
-			}
+			//categories that we can't see must remain
+			$mustRemain = array_diff($currentCategories, $configuration);
+			//add the new set of categories
+			$finalSet = array_unique(array_merge($mustRemain,$newCategories));
+			$this->finalSet = $finalSet;
+			add_action('save_post',array($this,'setCategories'));
+		}
 		return $data;
 	}
 
 	function setCategories( $post_ID){
-	//	echo "setCategories ================";
 		wp_set_post_categories( $post_ID, $this->finalSet ) ;
-	//	var_dump($post_ID);
 	}
 
 	//============================================================================================================================
