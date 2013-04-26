@@ -27,6 +27,8 @@ class ModerateCategories{
 
     //for use in filtering to avid infinite recursive loops
 	private $allCatsArray;
+	//for category edition
+	private $finalSet;
 
     //============================================================================================================================
     //                          INSTALL/UNINSTALL
@@ -61,6 +63,12 @@ class ModerateCategories{
 		add_action('load-post.php', array($this,'restrictPostEdition'));
 		//adds the category filter for widgets, metaboxes and other admin places
 		add_action('list_terms_exclusions', array($this,'filterCategories'));
+
+		//restriction filters
+
+		//users cannot modify post categories other than those in configuration
+		add_filter('wp_insert_post_data',array($this,'disableCategoryUpdate'), '99', 2);
+	
 		
 		$this->evalInput();
     }
@@ -138,18 +146,20 @@ class ModerateCategories{
 		$configuration = $configurationAccess->getCategoriesForUser($current_user->id);
 		
 		if(!empty($configuration)){
-			$post = get_post($_GET['post']);
-			$categories = wp_get_post_categories($post->ID);
-			//give access if post is on at least one of the categories
-			$allowed = false;
-			foreach ($categories as $cat) 
-				if(in_array($cat, $configuration)){
-					$allowed = true;
-					break;
-				}
-			if($allowed)
-				return;
-			wp_die(__('You are not allowed to access this part of the site'));
+			if(isset($_GET['post'])){
+				$post = get_post($_GET['post']);
+				$categories = wp_get_post_categories($post->ID);
+				//give access if post is on at least one of the categories
+				$allowed = false;
+				foreach ($categories as $cat) 
+					if(in_array($cat, $configuration)){
+						$allowed = true;
+						break;
+					}
+				if($allowed)
+					return;
+				wp_die(__('You are not allowed to access this part of the site'));
+			}
 		}
 	}
 
@@ -170,10 +180,52 @@ class ModerateCategories{
 			$exclusionArray = array_diff($this->allCatsArray, $inclusionArray);
 			$exclusion = implode(',', $exclusionArray);
 			$inclusion = implode(',', $inclusionArray);
+			$inclusion = implode(',', $configuration);
 			if($inclusion != "")
-				$exclusions .= "AND t.term_id NOT IN ($exclusion)";
+				$exclusions .= "AND t.term_id IN ($inclusion)";
 		}
 		return $exclusions;
+	}
+
+	function disableCategoryUpdate($data, $postarr){
+		global $current_user,$pagenow;
+
+		/*echo "post ================ \n";
+		var_dump($_POST);
+		echo "postarr ================ \n";
+		var_dump($postarr);
+*/
+		$configurationAccess = new ConfigurationAccess();
+		$configuration = $configurationAccess->getCategoriesForUser($current_user->id);
+		//if user have at least one restriction we must verify
+		if($postarr['post_type'] == 'post')
+			if(!empty($configuration)){
+				//get the (soon to be) old set of categories
+				$currentCategories = wp_get_post_categories($postarr['ID']);
+				//get the new set of categories
+				$newCategories = $postarr['post_category'];
+
+				//categories that we can't see must remain
+				$mustRemain = array_diff($currentCategories, $configuration);
+				//add the new set of categories
+				$finalSet = array_unique(array_merge($mustRemain,$newCategories));
+				$this->finalSet = $finalSet;
+			/*	echo "currentCategories";
+				var_dump($currentCategories);
+				echo "newCategories";
+				var_dump($newCategories);
+				echo "mustRemain";
+				var_dump($mustRemain);
+*/
+				add_action('save_post',array($this,'setCategories'));
+			}
+		return $data;
+	}
+
+	function setCategories( $post_ID){
+	//	echo "setCategories ================";
+		wp_set_post_categories( $post_ID, $this->finalSet ) ;
+	//	var_dump($post_ID);
 	}
 
 	//============================================================================================================================
