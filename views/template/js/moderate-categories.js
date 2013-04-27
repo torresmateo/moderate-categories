@@ -38,11 +38,11 @@ jQuery(document).ready(function($) {
 		if(split[0][0] == 'post' && split[1][0] == 'action' && split[1][1] == 'edit' ){
 			var categories = $('input[name=post_category\\[\\]]');
 			var atLeastOneChecked = false;
-			for (var i = 0; i < categories.length; i++) {
-				if(categories[i].checked == true && !(categories[i].value == 0)){
-					return true;
-				}
-			}
+			if(categories.length > 1)
+				for (var i = 0; i < categories.length; i++)
+					if(categories[i].checked == true && !(categories[i].value == 0)){
+						return true;
+					}
 			alert("You Must Select at least one of your visible categories");
 			return false;
 		}
