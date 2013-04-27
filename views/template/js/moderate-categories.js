@@ -31,7 +31,6 @@ jQuery(document).ready(function($) {
 	});
 
 	$("#post").submit(function(e){
-		var pathname = window.location.pathname;
 		var split = location.search.replace('?', '').split('&').map(function(val){
 			return val.split('=');
 		});
