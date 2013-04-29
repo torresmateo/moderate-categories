@@ -25,18 +25,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class ModerateCategories{
 
-    //for use in filtering to avid infinite recursive loops
+	//for use in filtering to avid infinite recursive loops
 	private $allCatsArray;
 	//for category edition
 	private $finalSet;
 
-    //============================================================================================================================
-    //                          INSTALL/UNINSTALL
-    //============================================================================================================================
+	//============================================================================================================================
+	//						  INSTALL/UNINSTALL
+	//============================================================================================================================
 
-    function __construct(){
-    	$this->allCatsArray = get_all_category_ids();
-    	//interface handler
+	function __construct(){
+		$this->allCatsArray = get_all_category_ids();
+		//interface handler
 		include_once('interface-builder.php');
 		//database access for configuration retrieval
 		include_once('configuration-access.php');
@@ -71,47 +71,47 @@ class ModerateCategories{
 	
 		
 		$this->evalInput();
-    }
+	}
 
-    function install(){
-    	//create database
-        $this->createTables();
-    }
+	function install(){
+		//create database
+		$this->createTables();
+	}
 
-    function uninstall(){
-    	//erase database
-        $this->dropTables();
-    }
+	function uninstall(){
+		//erase database
+		$this->dropTables();
+	}
 
-    function createTables(){
-        global $wpdb, $table_prefix;
-        //create roles table
-        $tableName = $table_prefix . "moderate_roles";
-        if($wpdb->get_var("show tables like '$tableName'") != $tableName){
-            $sql = "create table $tableName (
-                        id int NOT NULL AUTO_INCREMENT,
-                        role varchar(50) NOT NULL,
-                        category int NOT NULL,
-                        UNIQUE KEY id(id)
-                    );";
-            $rs = $wpdb->query($sql);
-        }
+	function createTables(){
+		global $wpdb, $table_prefix;
+		//create roles table
+		$tableName = $table_prefix . "moderate_roles";
+		if($wpdb->get_var("show tables like '$tableName'") != $tableName){
+			$sql = "create table $tableName (
+						id int NOT NULL AUTO_INCREMENT,
+						role varchar(50) NOT NULL,
+						category int NOT NULL,
+						UNIQUE KEY id(id)
+					);";
+			$rs = $wpdb->query($sql);
+		}
 
-        //create users table
-        $tableName = $table_prefix . "moderate_users";
-        if($wpdb->get_var("show tables like '$tableName'") != $tableName){
-            $sql = "create table $tableName (
-                        id int NOT NULL AUTO_INCREMENT,
-                        user int NOT NULL,
-                        category int NOT NULL,
-                        UNIQUE KEY id(id)
-                    );";
-            $rs = $wpdb->query($sql);
-        }
-    }
+		//create users table
+		$tableName = $table_prefix . "moderate_users";
+		if($wpdb->get_var("show tables like '$tableName'") != $tableName){
+			$sql = "create table $tableName (
+						id int NOT NULL AUTO_INCREMENT,
+						user int NOT NULL,
+						category int NOT NULL,
+						UNIQUE KEY id(id)
+					);";
+			$rs = $wpdb->query($sql);
+		}
+	}
 
-    function dropTables(){
-        global $wpdb, $table_prefix;
+	function dropTables(){
+		global $wpdb, $table_prefix;
 	
 		//drop role table
 		$table_name = $table_prefix.'moderate_roles';
@@ -122,16 +122,16 @@ class ModerateCategories{
 		$table_name = $table_prefix.'moderate_users';
 		$sql = "DROP TABLE ". $table_name . ";";
 		$wpdb->query($sql);
-    }
-    
-    //============================================================================================================================
-    //                             RESTRICTION HOOKS
-    //============================================================================================================================
+	}
 	
-    function restrictEditScreen( $wpQuery ){
-    	global $current_user,$pagenow;
+	//============================================================================================================================
+	//							 RESTRICTION HOOKS
+	//============================================================================================================================
+	
+	function restrictEditScreen( $wpQuery ){
+		global $current_user,$pagenow;
 		if ( $pagenow == 'edit.php' ){
-    		$configurationAccess = new ConfigurationAccess();
+			$configurationAccess = new ConfigurationAccess();
 			$configuration = $configurationAccess->getCategoriesForUser($current_user->id);
 			if(!empty($configuration)){
 				$wpQuery->set('cat',implode(",",$configuration));
@@ -214,47 +214,47 @@ class ModerateCategories{
 	}
 
 	//============================================================================================================================
-	//                             INPUT HANDLER
+	//							 INPUT HANDLER
 	//============================================================================================================================
-    
-    function evalInput(){
-    	//if we have something to do, create and InputHandler Instance and do stuff
-        if(isset($_POST['runMe']) && isset($_POST['target'])){
-            $inputHandler = new InputHandler($_POST['runMe'],$_POST['target'],$_POST['rule']);
-        }
-    }
+	
+	function evalInput(){
+		//if we have something to do, create and InputHandler Instance and do stuff
+		if(isset($_POST['runMe']) && isset($_POST['target'])){
+			$inputHandler = new InputHandler($_POST['runMe'],$_POST['target'],$_POST['rule']);
+		}
+	}
 
-    //============================================================================================================================
-    //                             ADMINISTRATOR GUI
-    //============================================================================================================================
-    
-    //outputs the CSS link
-    public function adminCSS(){
-        echo '<link rel="stylesheet" type="text/css" media="screen" href="'.plugin_dir_url(__FILE__).'/views/template/css/style.css" />';
-    }
+	//============================================================================================================================
+	//							 ADMINISTRATOR GUI
+	//============================================================================================================================
+	
+	//outputs the CSS link
+	public function adminCSS(){
+		echo '<link rel="stylesheet" type="text/css" media="screen" href="'.plugin_dir_url(__FILE__).'/views/template/css/style.css" />';
+	}
 
-    //outputs the JavaScript link
-    public function adminJS(){
-    	//load jQuery
+	//outputs the JavaScript link
+	public function adminJS(){
+		//load jQuery
 		echo '<script type="text/javascript"> if (window.jQuery == undefined) document.write( unescape(\'%3Cscript src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"%3E%3C/script%3E\') );</script>';
 		//load the plugin script
 		echo '<script type="text/javascript" src="'.plugin_dir_url(__FILE__).'/views/template/js/moderate-categories.js"></script>';
 	}
 
-    //Adds the "Moderate Categories" menu to the admin dashboard
-    public function adminMenu(){
-        add_menu_page(  'Moderate Categories',
-                        'Mod Categories',
-                        'manage_options',
-                        'moderate-categories',
-                        array($this,'mainMenu'),
-                        plugin_dir_url(__FILE__).'/views/template/img/top.logo.png');
-    }
+	//Adds the "Moderate Categories" menu to the admin dashboard
+	public function adminMenu(){
+		add_menu_page(  'Moderate Categories',
+						'Mod Categories',
+						'manage_options',
+						'moderate-categories',
+						array($this,'mainMenu'),
+						plugin_dir_url(__FILE__).'/views/template/img/top.logo.png');
+	}
 
-    //prints the AWSUM config screen (role-categories screen)
+	//prints the AWSUM config screen (role-categories screen)
 	public function mainMenu(){
 		if (!current_user_can('manage_options'))  {
-		    wp_die( __('You do not have sufficient permissions to access this page.') );
+			wp_die( __('You do not have sufficient permissions to access this page.') );
 		}
 		$target = 'error';//default value is error page
 
@@ -272,7 +272,7 @@ class ModerateCategories{
 
 		//paint it!
 		$configMenu->build();
-    }
+	}
 
 }
 
@@ -284,39 +284,39 @@ class ModerateCategories{
  * @since 1.5
  */
 class RestrictCats_Walker_Category_Checklist extends Walker {
-    var $tree_type = 'category';
-    var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); //TODO: decouple this
+	var $tree_type = 'category';
+	var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); //TODO: decouple this
 
-    function start_lvl(&$output, $depth, $args) {
-        $indent = str_repeat("\t", $depth);
-        $output .= "$indent<ul class='children'>\n";
-    }
+	function start_lvl(&$output, $depth, $args) {
+		$indent = str_repeat("\t", $depth);
+		$output .= "$indent<ul class='children'>\n";
+	}
 
-    function end_lvl(&$output, $depth, $args) {
-        $indent = str_repeat("\t", $depth);
-        $output .= "$indent</ul>\n";
-    }
+	function end_lvl(&$output, $depth, $args) {
+		$indent = str_repeat("\t", $depth);
+		$output .= "$indent</ul>\n";
+	}
 
-    function start_el(&$output, $category, $depth, $args) {
-        extract($args);
-        if ( empty($taxonomy) )
-            $taxonomy = 'category';
+	function start_el(&$output, $category, $depth, $args) {
+		extract($args);
+		if ( empty($taxonomy) )
+			$taxonomy = 'category';
 
-        if ( $taxonomy == 'category' )
-            $name = 'post_category';
-        else
-            $name = 'tax_input['.$taxonomy.']';
-        
-        $output .= "\n<li id='{$taxonomy}-{$category->term_id}'>" . '<label class="selectit"><input value="' . 
-	        $category->slug . '" type="checkbox" name="rule[]" ' . 
-	        checked( in_array( $category->slug, $selected_cats ), true, false ) . 
-	        ( $disabled === true ? 'disabled="disabled"' : '' ) . ' /> ' . 
-	        esc_html( apply_filters('the_category', $category->name ) ) . '</label>';
-    }
+		if ( $taxonomy == 'category' )
+			$name = 'post_category';
+		else
+			$name = 'tax_input['.$taxonomy.']';
+		
+		$output .= "\n<li id='{$taxonomy}-{$category->term_id}'>" . '<label class="selectit"><input value="' . 
+			$category->slug . '" type="checkbox" name="rule[]" ' . 
+			checked( in_array( $category->slug, $selected_cats ), true, false ) . 
+			( $disabled === true ? 'disabled="disabled"' : '' ) . ' /> ' . 
+			esc_html( apply_filters('the_category', $category->name ) ) . '</label>';
+	}
 
-    function end_el(&$output, $category, $depth, $args) {
-        $output .= "</li>\n";
-    }
+	function end_el(&$output, $category, $depth, $args) {
+		$output .= "</li>\n";
+	}
 }
 
 
