@@ -31,25 +31,20 @@ jQuery(document).ready(function($) {
 	});
 
 	$("#post").submit(function(e){
-		var pathname = window.location.pathname;
 		var split = location.search.replace('?', '').split('&').map(function(val){
 			return val.split('=');
 		});
 		if(split[0][0] == 'post' && split[1][0] == 'action' && split[1][1] == 'edit' ){
 			var categories = $('input[name=post_category\\[\\]]');
-			console.log(categories);
-			if(categories.length > 1){
-				var atLeastOneChecked = false;
-				for (var i = 0; i < categories.length; i++) {
+			var atLeastOneChecked = false;
+			if(categories.length > 1)
+				for (var i = 0; i < categories.length; i++)
 					if(categories[i].checked == true && !(categories[i].value == 0)){
 						return true;
 					}
-				}
-				alert("You Must Select at least one of your visible categories");
-				return false;
-			}
+			alert("You Must Select at least one of your visible categories");
+			return false;
 		}
 		return true;
 	});
-
 });
