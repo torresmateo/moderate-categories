@@ -19,7 +19,16 @@ include("template/header.php");?>
 <p>You probably can figure out how to assign rules to specific roles and/or users, but this will briefly explain how to do it.</p>
 <p>This plug-in have 3 tabs, each tab with one specific purpose (the current tab is just for displaying this text). The <i>Role-Category Rules</i> tab is there for creating Role-Category Rules (pretty straightforward) and the same goes for the <i>User-Category Rules</i> tab.
 <p>Inside any of those tabs, you will find two Sections:
-  <ul>
+  <table>
+	<tr><th>Rule Table</th><th>Add/Edit Form</th></tr>
+	<tr><td>Role (or User)</td><td>User (or Role) Selector</td></tr>
+	<tr><td>List of assigned categories</td><td>Category Tree</td></tr>
+	<tr><td>Delete Rule Button</td><td>Add/Edit Button</td></tr>
+
+  </table>
+
+
+<ul>
 	<li>The Rule Table
 	  <ul>
 		<li>Role (or User)</li>
@@ -27,8 +36,7 @@ include("template/header.php");?>
 		<li>Reset Button</li>
 	  </ul>
 	</li>
-
-  </ul>
+</ul>
 
 
  
