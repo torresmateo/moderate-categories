@@ -2,7 +2,7 @@
 /*
 Plugin Name: Moderate Categories
 Description: Gives the WordPress admin the ability to give visibility access to roles and users for posts in a by-category way
-Version: 1.0
+Version: 1.0.1
 Author: Mateo Torres
 Author URI: https://github.com/torresmateo/moderate-categories
 License:GPL3
@@ -198,7 +198,7 @@ class ModerateCategories{
 			$currentCategories = wp_get_post_categories($postarr['ID']);
 			//get the new set of categories
 			$newCategories = $postarr['post_category'];
-
+            if(!is_array($newCategories)) $newCategories = array();
 			//categories that we can't see must remain
 			$mustRemain = array_diff($currentCategories, $configuration);
 			//add the new set of categories
