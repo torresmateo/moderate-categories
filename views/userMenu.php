@@ -111,7 +111,7 @@ $userRules = $configAccess->getUsersConfiguration();
 					<div class="taxonomydiv">
 						<ul class="categorychecklist form-no-clear">
 							<?php
-							$walker = new RestrictCats_Walker_Category_Checklist();
+							$walker = new ModerateCategories_Walker_Category_Checklist();
 							if ( isset( $settings[ $id ] ) && is_array( $settings[ $id ] ) )
 								$selected = $settings[ $id ];
 							else

@@ -283,7 +283,7 @@ class ModerateCategories{
  * http://wordpress.org/support/plugin/restrict-categories
  * @since 1.5
  */
-class RestrictCats_Walker_Category_Checklist extends Walker {
+class ModerateCategories_Walker_Category_Checklist extends Walker {
 	var $tree_type = 'category';
 	var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); //TODO: decouple this
 
