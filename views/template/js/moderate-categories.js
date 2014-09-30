@@ -42,6 +42,7 @@ jQuery(document).ready(function($) {
 					if(categories[i].checked == true && !(categories[i].value == 0)){
 						return true;
 					}
+			if(moderatedPostTypes.indexOf(typenow) == -1) return true;
 			alert("You Must Select at least one of your visible categories");
 			return false;
 		}

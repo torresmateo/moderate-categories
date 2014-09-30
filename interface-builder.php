@@ -29,6 +29,7 @@ class InterfaceBuilder{
         $validTags = array(
             'mainMenu',     //roles-categories
             'userMenu',     //users-categories
+            'postTypes',   //how-to-do-stuff
             'how-to-Page'   //how-to-do-stuff
         );
 

@@ -108,6 +108,19 @@ class ModerateCategories{
 					);";
 			$rs = $wpdb->query($sql);
 		}
+
+		//create roles table
+		$tableName = $table_prefix . "moderate_post_types";
+		if($wpdb->get_var("show tables like '$tableName'") != $tableName){
+			$sql = "create table $tableName (
+						id int NOT NULL AUTO_INCREMENT,
+						post_type varchar(200) NOT NULL,
+						description varchar(200) NOT NULL,
+						value int NOT NULL,
+						UNIQUE KEY id(id)
+					);";
+			$rs = $wpdb->query($sql);
+		}
 	}
 
 	function dropTables(){
@@ -122,6 +135,11 @@ class ModerateCategories{
 		$table_name = $table_prefix.'moderate_users';
 		$sql = "DROP TABLE ". $table_name . ";";
 		$wpdb->query($sql);
+
+		//drop post_type table
+		$table_name = $table_prefix.'moderate_post_types';
+		$sql = "DROP TABLE ". $table_name . ";";
+		$wpdb->query($sql);
 	}
 	
 	//============================================================================================================================
@@ -130,7 +148,7 @@ class ModerateCategories{
 	
 	function restrictEditScreen( $wpQuery ){
 		global $current_user,$pagenow;
-		if ( $pagenow == 'edit.php' ){
+		if ( $pagenow == 'edit.php' && $_GET['post_type'] != 'page'){
 			$configurationAccess = new ConfigurationAccess();
 			$configuration = $configurationAccess->getCategoriesForUser($current_user->id);
 			if(!empty($configuration)){
@@ -146,7 +164,7 @@ class ModerateCategories{
 		$configuration = $configurationAccess->getCategoriesForUser($current_user->id);
 		
 		if(!empty($configuration)){
-			if(isset($_GET['post'])){
+			if(isset($_GET['post']) && isset($_GET['post_type']) && $_GET['post_type'] != 'page' ){
 				$post = get_post($_GET['post']);
 				$categories = wp_get_post_categories($post->ID);
 				//give access if post is on at least one of the categories
@@ -239,6 +257,10 @@ class ModerateCategories{
 		echo '<script type="text/javascript"> if (window.jQuery == undefined) document.write( unescape(\'%3Cscript src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"%3E%3C/script%3E\') );</script>';
 		//load the plugin script
 		echo '<script type="text/javascript" src="'.plugin_dir_url(__FILE__).'/views/template/js/moderate-categories.js"></script>';
+		//define javascript variable of moderated post_types
+		$configAccess = new ConfigurationAccess();
+		$postTypeRules = $configAccess->getPostTypeConfiguration();
+		echo '<script type="text/javascript">moderatedPostTypes = '.json_encode($postTypeRules).'</script>';
 	}
 
 	//Adds the "Moderate Categories" menu to the admin dashboard
@@ -262,7 +284,8 @@ class ModerateCategories{
 		if(isset($_GET['tab'])){
 			switch($_GET['tab']){
 				case '1': $target = 'userMenu'; break;
-				case '2': $target = 'how-to-Page'; break;
+				case '2': $target = 'postTypes'; break;
+				case '3': $target = 'how-to-Page'; break;
 				default: $target = 'error'; //because redundancy is never really redundant enough!
 			}
 		}else{//if not set, must be mainMenu

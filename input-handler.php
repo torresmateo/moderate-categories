@@ -45,9 +45,41 @@ class InputHandler{
 			case 'editRuleForUser':
 				$this->editRuleForUser($target, $rule);
 				break;
+			case 'editPostType':
+				$this->editPostType($rule);
+				break;
 			default:
 				//TODO handle error
 				break;
+		}
+	}
+
+	function editPostType($rules)
+	{
+		global $wpdb, $table_prefix;
+	
+
+		//delete all rules
+		$sqlDelete = 'delete from '.$table_prefix.'moderate_post_types';
+		$wpdb->query($sqlDelete);
+
+
+		//insert new rules
+		$sql = 'insert into '.$table_prefix.'moderate_post_types (post_type, description, value) values ';
+		
+		$haveRules = false;
+		if(!empty($rules)){
+
+			foreach ($rules as $key => $rule) {
+				//if this isn't the firt rule, a comma must be added. 
+				if($haveRules)
+					$sql .= ',';		
+				//we have at least one new rule
+				$haveRules = true;
+				//add rule
+				$sql .= '("'.$rule.'","'.$rule.'", 1)';
+			}
+			$wpdb->query($sql);
 		}
 	}
 

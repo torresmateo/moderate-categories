@@ -46,6 +46,22 @@ class ConfigurationAccess{
 	}
 
 	/**
+	 * Gets the post_type entries from database
+	 * @return array configuration table
+	 * @author Mateo Torres <torresmateo@arsisteam.com>
+	 */
+	public function getPostTypeConfiguration(){
+		global $wpdb, $table_prefix;
+		$sql = 'select * from '.$table_prefix.'moderate_post_types';
+		$postTypeRules = $wpdb->get_results($sql);
+		$formattedRules = array();
+		if (!empty($postTypeRules))
+			foreach ($postTypeRules as $key => $rule) 
+				$formattedRules[] = $rule->post_type;
+		return $formattedRules;
+	}
+
+	/**
 	 * Gets the user-category entries from database
 	 * @return array configuration table
 	 * @author Mateo Torres <torresmateo@arsisteam.com>

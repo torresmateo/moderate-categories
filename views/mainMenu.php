@@ -80,7 +80,6 @@ $roleRules = $configAccess->getRolesConfiguration();
 
         </tbody>
     </table>
-</form>
 
 <form action="<?php echo $PHP_SELF; ?>" id="targetForm" class="moderateForm" method="post" enctype="multipart/form-data" name="add_new_role_rule">
     <table class="widefat post">
